@@ -110,8 +110,12 @@ if False :
         pass
 
         ##
+
+        # single stock
         url = make_nominal_price_url('463485591591544')
         r = requests.get(url , headers = mk.headers)
         r.text
+
+        ##
 
         ##

@@ -14,7 +14,6 @@ from namespace_mahdimir import tse_github_data_url as tgdu
 
 # namespace     %%%%%%%%%%%%%%%
 c = tse_ns.Col()
-cd = tse_ns.DIndInsCols()
 
 # class         %%%%%%%%%%%%%%%
 class GDU :
