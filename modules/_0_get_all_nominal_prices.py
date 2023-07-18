@@ -34,59 +34,80 @@ def make_nominal_price_url(firmticker_id) :
     return k.url.format(firmticker_id , 1)
 
 def filter_to_get_items(df) :
-    msk = df[cn.res_txt].isna()
-    msk |= df[cn.res_txt].eq('')
+    msk = df[cn.rspt].isna()
+    msk |= df[cn.rspt].eq('')
 
     df = df[msk]
     print('empty ones count:' , len(df))
 
     return df
 
+def get_all_data(df , test_mode = True) :
+    _df = filter_to_get_items(df)
+
+    for indx , ro in _df.iterrows() :
+        print(indx , ' : ' , ro[c.ftic])
+
+        r = requests.get(ro[cn.url] , headers = mk.headers)
+
+        if r.status_code == 200 :
+            df.loc[indx , cn.rspt] = r.text
+            print(r.text[:100])
+            print(r.text[-100 :])
+
+        else :
+            print(r.status_code)
+
+        time.sleep(1)
+
+        if test_mode :
+            break
+
+    return df
+
+def get_all_data_with_retry(df) :
+    """ get all data in number of loops and not test mode """
+    try :
+
+        for i in range(10) :
+            print('Loop numebr: ' , i)
+
+            df = get_all_data(df , test_mode = False)
+
+    except KeyboardInterrupt :
+        print('KeyboardInterrupt')
+
+    finally :
+        return df
+
 def main() :
     pass
 
     ##
+
     # get all firm ids
     df = get_all_firm_ids()
 
     ##
+
     # make a col for url
     df[cn.url] = df[c.tse_id].apply(make_nominal_price_url)
 
     ##
+
     # make a col for response text
-    df[cn.res_txt] = None
+    df[cn.rspt] = None
 
     ##
-    # get all data
-    for i in range(1 , 11) :
-        print('loop:' , i)
-
-        df1 = filter_to_get_items(df)
-        if df1.empty :
-            break
-
-        for indx , ro in df1.iterrows() :
-            print(indx , ' : ' , ro[c.ftic])
-
-            if not (pd.isna(ro[cn.res_txt]) or ro[cn.res_txt] == '') :
-                continue
-
-            r = requests.get(ro[cn.url] , headers = mk.headers)
-
-            if r.status_code == 200 :
-                df.loc[indx , cn.res_txt] = r.text
-                print(r.text[:100])
-            else :
-                print(r.status_code)
-
-            time.sleep(1)
-
-            # break
-
-        # break
+    df = get_all_data_with_retry(df)
 
     ##
+
+    # drop url col
+    df = df.drop(columns = [cn.url])
+
+    ##
+
     # save temp data without index
     save_df_as_prq(df , fpn.t0)
 
@@ -112,9 +133,18 @@ if False :
         ##
 
         # single stock
-        url = make_nominal_price_url('463485591591544')
+        url = make_nominal_price_url('18401147983387689')
         r = requests.get(url , headers = mk.headers)
-        r.text
+        x = r.text
+
+        ##
+
+        # test mode
+        df = get_all_data(df)
+
+        ##
+
+        df.loc[3 , cn.rspt]
 
         ##
 

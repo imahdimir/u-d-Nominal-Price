@@ -38,7 +38,7 @@ class FPN :
 
 class ColName :
     url = 'url'
-    res_txt = 'res_text'
+    rspt = 'response-text'
 
 # class instances   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 gdu = GDU()

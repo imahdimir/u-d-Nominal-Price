@@ -23,7 +23,7 @@ def split_all_rows(dft) :
     for indx , row in dft.iterrows() :
         print(indx , ' : ' , row[c.ftic])
 
-        df1 = split_into_df_cols(row[cn.res_txt])
+        df1 = split_into_df_cols(row[cn.rspt])
 
         df1[c.ftic] = row[c.ftic]
         df1[c.tse_id] = row[c.tse_id]
