@@ -64,6 +64,9 @@ def main() :
     assert_no_duplicated_rows_in_df_cols_subset(df , [c.ftic , c.d])
 
     ##
+    df = df.sort_values(by = c.d , ascending = False)
+
+    ##
     save_df_as_prq(df , fpn.t2)
 
     ##
