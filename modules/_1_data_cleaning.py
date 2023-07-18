@@ -9,13 +9,14 @@ from mirutil.df import reorder_df_cols_as_a_class_values
 from mirutil.df import save_df_as_prq
 from namespace_mahdimir.tse import DNomPriceCol
 from persiantools.jdatetime import JalaliDateTime
+from mirutil.jdate import make_jdate_col_fr_str_date_col_in_a_df
 
 from main import c
 from main import cn
 from main import fpn
 
 # namespace     %%%%%%%%%%%%%%%
-cdn = DNomPriceCol()
+cd = DNomPriceCol()
 
 def split_all_rows(dft) :
     df = pd.DataFrame()
@@ -42,16 +43,16 @@ def rename_cols(df) :
     cns = {
             '0' : c.d ,
 
-            '1' : cdn.nhi ,
-            '2' : cdn.nlo ,
-            '3' : cdn.nclos ,
-            '4' : cdn.nlst ,
-            '5' : cdn.nopn ,
-            '6' : cdn.nystrd ,
+            '1' : cd.nhi ,
+            '2' : cd.nlo ,
+            '3' : cd.nclos ,
+            '4' : cd.nlst ,
+            '5' : cd.nopn ,
+            '6' : cd.nystrd ,
 
-            '7' : cdn.val ,
-            '8' : cdn.vol ,
-            '9' : cdn.trd_count ,
+            '7' : cd.val ,
+            '8' : cd.vol ,
+            '9' : cd.trd_count ,
             }
 
     return df.rename(columns = cns)
@@ -72,19 +73,9 @@ def check_all_vals_are_notna(df) :
 
     assert df1.empty , 'there are some nan values'
 
-def check_date_vals_and_make_jdate(df) :
-    df[c.d] = pd.to_datetime(df[c.d] , format = '%Y%m%d')
-
-    df[c.jd] = df[c.d].apply(JalaliDateTime.to_jalali)
-
-    df[c.jd] = df[c.jd].apply(lambda x : x.strftime('%Y-%m-%d'))
-    df[c.d] = df[c.d].apply(lambda x : x.strftime('%Y-%m-%d'))
-
-    return df
-
 def drop_duplicates_except_tse_id(df) :
     """
-    firms TSETMC id might changed during time, but the firm is not changed.
+    firms TSETMC id might be changed during time, but the firm is not changed.
     """
     return df.drop_duplicates(subset = df.columns.difference([c.tse_id]))
 
@@ -109,10 +100,16 @@ def main() :
     df = split_all_rows(dft)
 
     ##
-    save_df_as_prq(df , fpn.t1_0)
+    def manual() :
+        pass
 
-    ##
-    df = pd.read_parquet(fpn.t1_0)
+        ##
+
+        # for manual run because it is time-consuming
+        save_df_as_prq(df , fpn.t1_0)
+
+        ##
+        df = pd.read_parquet(fpn.t1_0)
 
     ##
     df = rename_cols(df)
@@ -127,7 +124,8 @@ def main() :
     check_all_vals_are_notna(df)
 
     ##
-    df = check_date_vals_and_make_jdate(df)
+    _fu = make_jdate_col_fr_str_date_col_in_a_df
+    df = _fu(df , c.d , c.jd , date_fmt = '%Y%m%d')
 
     ##
     df = drop_duplicates_except_tse_id(df)
@@ -151,30 +149,11 @@ if __name__ == "__main__" :
 ##
 
 
-if False :
+def test() :
     pass
 
     ##
 
-    def test() :
-        pass
-
-        ##
-        vars(DNomPriceCol)
-
-        ##
-        def return_not_special_variables_of_class(cls) :
-            return {x : y for x , y in cls.__dict__.items() if
-                    not x.startswith('_')}
-
-        ##
-        return_not_special_variables_of_class(DNomPriceCol)
-
-        ##
-        type(DNomPriceCol())
-
-        ##
-        def reorder_df_cols_as_class_values(df , cls) :
-            return df[return_not_special_variables_of_class(cls).values()]
-
     ##
+
+##
