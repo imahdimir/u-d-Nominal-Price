@@ -7,11 +7,11 @@ from pathlib import Path
 import pandas as pd
 from mirutil.df import reorder_df_cols_as_a_class_values
 from mirutil.df import save_df_as_prq
-from namespace_mahdimir.tse import DNomPriceCol
-from persiantools.jdatetime import JalaliDateTime
 from mirutil.jdate import make_jdate_col_fr_str_date_col_in_a_df
+from namespace_mahdimir.tse import DNomPriceCol
 
 from main import c
+from main import check_all_vals_are_notna
 from main import cn
 from main import fpn
 
@@ -66,12 +66,6 @@ def remove_nan_rows(df) :
     df = df[~ msk]
 
     return df
-
-def check_all_vals_are_notna(df) :
-    msk = df.isna().any(axis = 1)
-    df1 = df[msk]
-
-    assert df1.empty , 'there are some nan values'
 
 def drop_duplicates_except_tse_id(df) :
     """

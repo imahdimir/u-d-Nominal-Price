@@ -11,6 +11,11 @@ from main import clone_target_repo
 from main import fpn
 from main import gdu
 
+def clone_target_repo() :
+    gdt = GitHubDataRepo(gdu.nom_price_st)
+    gdt.clone_overwrite()
+    return gdt
+
 def replace_old_data_with_new(gdt) :
     gdt.data_fp.unlink()
 
@@ -43,11 +48,3 @@ def main() :
 if __name__ == "__main__" :
     main()
     print(f'{Path(__file__).name} Done!')
-
-##
-if False :
-    pass
-
-    ##
-
-    ##

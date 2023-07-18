@@ -5,7 +5,6 @@
 import time
 from pathlib import Path
 
-import pandas as pd
 import requests
 from githubdata import GitHubDataRepo as GDR
 from mirutil.async_req import get_resps_async_sync
@@ -150,36 +149,34 @@ if __name__ == "__main__" :
 ##
 
 
-if False :
+def test() :
     pass
 
     ##
-    def test() :
-        pass
 
-        ##
+    # single stock
+    url = make_nominal_price_url('18401147983387689')
+    r = requests.get(url , headers = mk.headers)
+    x = r.text
 
-        # single stock
-        url = make_nominal_price_url('18401147983387689')
-        r = requests.get(url , headers = mk.headers)
-        x = r.text
+    ##
 
-        ##
+    # test mode
+    df = get_all_data(df)
 
-        # test mode
-        df = get_all_data(df)
+    ##
 
-        ##
+    x = df.loc[3 , cn.rspt]
+    x
 
-        x = df.loc[3 , cn.rspt]
-        x
+    ##
+    type(x)
 
-        ##
-        type(x)
+    ##
+    # byte to str
+    x = x.decode('utf-8')
+    x
 
-        ##
-        # byte to str
-        x = x.decode('utf-8')
-        x
+    ##
 
-        ##
+##
