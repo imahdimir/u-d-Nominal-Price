@@ -5,9 +5,9 @@
 import shutil
 from pathlib import Path
 
+from githubdata import GitHubDataRepo
 from persiantools.jdatetime import JalaliDateTime
 
-from main import clone_target_repo
 from main import fpn
 from main import gdu
 
