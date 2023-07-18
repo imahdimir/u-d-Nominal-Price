@@ -8,8 +8,10 @@ from pathlib import Path
 import pandas as pd
 import requests
 from githubdata import GitHubDataRepo as GDR
+from mirutil.async_req import get_resps_async_sync
 from mirutil.const import Const as MConst
 from mirutil.df import save_df_as_prq
+from mirutil.utils import ret_clusters_indices
 
 from main import c
 from main import cn
@@ -45,23 +47,46 @@ def filter_to_get_items(df) :
 def get_all_data(df , test_mode = True) :
     _df = filter_to_get_items(df)
 
-    for indx , ro in _df.iterrows() :
-        print(indx , ' : ' , ro[c.ftic])
+    cls = ret_clusters_indices(_df , 50)
 
-        r = requests.get(ro[cn.url] , headers = mk.headers)
+    for se in cls :
+        si = se[0]
+        ei = se[1]
+        print(se)
 
-        if r.status_code == 200 :
-            df.loc[indx , cn.rspt] = r.text
-            print(r.text[:100])
-            print(r.text[-100 :])
+        inds = _df.iloc[si : ei].index
+        print(inds)
 
-        else :
-            print(r.status_code)
+        urls = df.loc[inds , cn.url]
 
-        time.sleep(1)
+        rs = get_resps_async_sync(urls)
+
+        df = add_resps_to_df(df , inds , rs)
 
         if test_mode :
             break
+
+        time.sleep(2)
+
+    return df
+
+def read_a_single_response(resp) :
+    rg = resp
+    if rg.r.status == 200 :
+        rc = rg.cont
+        rt = rc.decode('utf-8')
+        return rt
+
+def add_resps_to_df(df , inds , resps) :
+    cols = {
+            cn.rspt : read_a_single_response ,
+            }
+
+    for ky , vl in cols.items() :
+        df.loc[inds , ky] = [vl(x) for x in resps]
+
+    msk = df.loc[inds , cn.rspt].notna()
+    print('new data count: ' , len(msk[msk]))
 
     return df
 
@@ -99,6 +124,8 @@ def main() :
     df[cn.rspt] = None
 
     ##
+
+    # get all data async and with retry
     df = get_all_data_with_retry(df)
 
     ##
@@ -144,8 +171,15 @@ if False :
 
         ##
 
-        df.loc[3 , cn.rspt]
+        x = df.loc[3 , cn.rspt]
+        x
 
         ##
+        type(x)
+
+        ##
+        # byte to str
+        x = x.decode('utf-8')
+        x
 
         ##
